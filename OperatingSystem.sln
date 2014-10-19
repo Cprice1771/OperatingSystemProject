@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OperatingSystem", "OperatingSystem\OperatingSystem.csproj", "{B74F18FD-737B-400F-ACBC-88FD58CB06EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OperatingSystemFrontend", "OperatingSystemFrontend\OperatingSystemFrontend.csproj", "{369360BD-2522-42A7-B711-CDD2D8E3DAC0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B74F18FD-737B-400F-ACBC-88FD58CB06EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B74F18FD-737B-400F-ACBC-88FD58CB06EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B74F18FD-737B-400F-ACBC-88FD58CB06EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B74F18FD-737B-400F-ACBC-88FD58CB06EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{369360BD-2522-42A7-B711-CDD2D8E3DAC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{369360BD-2522-42A7-B711-CDD2D8E3DAC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{369360BD-2522-42A7-B711-CDD2D8E3DAC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{369360BD-2522-42A7-B711-CDD2D8E3DAC0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
