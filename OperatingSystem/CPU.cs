@@ -13,9 +13,29 @@ namespace OperatingSystem
         int _registerB;
         int _registerC;
         int _registerD;
-        PCB _currentPCB;
+        
         RAM _ram;
 
+        public PCB PCB { get; set; }
+        public bool HasJob {
+            get
+            {
+                if (PCB != null)
+                    return true;
+                else
+                    return false;
+            }
+              }
+        public bool IsWaiting
+        {
+            get
+            {
+                if (PCB == null || PCB.State != ProcessState.Ready)
+                    return true;
+                else
+                    return false;
+            }
+        }
 
         public CPU(RAM ram)
         {
@@ -34,17 +54,19 @@ namespace OperatingSystem
             _registerC = input.RegisterC;
             _registerD = input.RegisterD;
             _accumulator = input.Accumulator;
-            _currentPCB = input;
+            PCB = input;
         }
 
         public void Execute()
         {
             //Only do anything if the process is ready
-            if (_currentPCB.State != ProcessState.Ready)
+            if (PCB == null || PCB.State != ProcessState.Ready)
                 return;
 
+            
+
             //Get all the arguments
-            Instruction currentInstruction = _ram.Instructions[_currentPCB.PC];
+            Instruction currentInstruction = _ram.Instructions[PCB.Index + PCB.PC];
             int arg1 = GetArg(currentInstruction.Arg1);
             int arg2 = GetArg(currentInstruction.Arg2);
             int arg3 = currentInstruction.Arg3;
@@ -68,19 +90,19 @@ namespace OperatingSystem
                     CopyAccTo(currentInstruction.Arg1);
                     break ;
                 case CommandType.rd:
-                    _currentPCB.State = ProcessState.Waiting;
-                    _currentPCB.IOQueueCycles = arg3;
+                    PCB.State = ProcessState.Waiting;
+                    PCB.IOQueueCycles = arg3;
                     break ;
                 case  CommandType.sto:
                     _accumulator = arg3;
                     break ;
                 case CommandType.wt:
-                    _currentPCB.State = ProcessState.Waiting;
-                    _currentPCB.WaitQueueCycles = arg3;
+                    PCB.State = ProcessState.Waiting;
+                    PCB.WaitQueueCycles = arg3;
                     break ;
                 case CommandType.wr:
-                    _currentPCB.State = ProcessState.Waiting;
-                    _currentPCB.IOQueueCycles = arg3;
+                    PCB.State = ProcessState.Waiting;
+                    PCB.IOQueueCycles = arg3;
                     break ;
                 case CommandType.nul:
                     ResetRegisters();
@@ -88,24 +110,33 @@ namespace OperatingSystem
                 case CommandType.stp:
                     SavePCB();
                     //This should flag the STS to send it back to the end of the RQ
-                    _currentPCB.State = ProcessState.Stopped;
+                    PCB.State = ProcessState.Stopped;
                     break ;
                 case CommandType.err:
                     SavePCB();
-                    _currentPCB.State = ProcessState.Terminated;
+                    PCB.State = ProcessState.Terminated;
                     break ;
                 default:
                     throw new UnknownCommandException();
+            }
+
+            PCB.PC++;
+
+            //If we did all the instuctions, then terminate
+            if (PCB.Length == PCB.PC)
+            {
+                PCB.State = ProcessState.Terminated;
+                return;
             }
         }
 
         private void SavePCB()
         {
-            _currentPCB.RegisterA = _registerA;
-            _currentPCB.RegisterB = _registerB;
-            _currentPCB.RegisterC = _registerC;
-            _currentPCB.RegisterD = _registerD;
-            _currentPCB.Accumulator = _accumulator;
+            PCB.RegisterA = _registerA;
+            PCB.RegisterB = _registerB;
+            PCB.RegisterC = _registerC;
+            PCB.RegisterD = _registerD;
+            PCB.Accumulator = _accumulator;
         }
 
         private void ResetRegisters()
@@ -155,5 +186,7 @@ namespace OperatingSystem
             }
         }
 
+
+        
     }
 }

@@ -49,9 +49,18 @@ namespace OperatingSystem
     {
         New,
         Waiting,
+        IO,
         Ready,
         Running,
         Stopped,
+        Terminated
+    }
+
+    public enum QueueType
+    {
+        Ready,
+        Waiting,
+        IO,
         Terminated
     }
 

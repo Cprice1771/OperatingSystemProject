@@ -29,12 +29,16 @@ namespace OperatingSystem
             Instructions = new List<Instruction>();
         }
 
-        public void AddJob(List<Instruction> instructions)
+        public int AddJob(List<Instruction> instructions)
         {
+            int index = instructions.Count;
+
             if ((size + instructions.Count) < MaxSize)
                 Instructions.AddRange(instructions);
             else
                 throw new InsufficientRAMException();
+
+            return index;
         }
 
         public override string ToString()
