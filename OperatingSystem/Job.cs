@@ -14,7 +14,7 @@ namespace OperatingSystem
 
         public Job(byte p, int jn)
         {
-            JobPCB = new PCB(p, 0, 0, JobLocation.HDD);
+            JobPCB = new PCB(p, 0, 0, JobLocation.HDD, jn);
             Instructions = new List<Instruction>();
             JobNumber = jn;
         }

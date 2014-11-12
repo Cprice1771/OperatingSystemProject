@@ -30,7 +30,7 @@ namespace OperatingSystem
         {
             get
             {
-                if (PCB == null || PCB.State != ProcessState.Ready)
+                if (PCB == null || PCB.State != ProcessState.Running)
                     return true;
                 else
                     return false;
@@ -47,7 +47,12 @@ namespace OperatingSystem
             _ram = ram;
         }
 
-        public void LoadPCB(PCB input)
+        public void UnloadPCB()
+        {
+            PCB = null;
+        }
+
+        public void LoadPCB(PCB input, RAM ram)
         {
             _registerA = input.RegisterA;
             _registerB = input.RegisterB;
@@ -55,12 +60,13 @@ namespace OperatingSystem
             _registerD = input.RegisterD;
             _accumulator = input.Accumulator;
             PCB = input;
+            _ram = ram;
         }
 
         public void Execute()
         {
-            //Only do anything if the process is ready
-            if (PCB == null || PCB.State != ProcessState.Ready)
+            //Only do anything if the process is running
+            if (PCB == null || PCB.State != ProcessState.Running)
                 return;
 
             
@@ -90,7 +96,7 @@ namespace OperatingSystem
                     CopyAccTo(currentInstruction.Arg1);
                     break ;
                 case CommandType.rd:
-                    PCB.State = ProcessState.Waiting;
+                    PCB.State = ProcessState.IO;
                     PCB.IOQueueCycles = arg3;
                     break ;
                 case  CommandType.sto:
@@ -99,10 +105,12 @@ namespace OperatingSystem
                 case CommandType.wt:
                     PCB.State = ProcessState.Waiting;
                     PCB.WaitQueueCycles = arg3;
+                    SavePCB();
                     break ;
                 case CommandType.wr:
-                    PCB.State = ProcessState.Waiting;
+                    PCB.State = ProcessState.IO;
                     PCB.IOQueueCycles = arg3;
+                    SavePCB();
                     break ;
                 case CommandType.nul:
                     ResetRegisters();
@@ -115,6 +123,16 @@ namespace OperatingSystem
                 case CommandType.err:
                     SavePCB();
                     PCB.State = ProcessState.Terminated;
+                    _ram.RemoveJob(PCB.Start, PCB.Length);
+                    //Update all the values of the other PCB's after we remove the main one
+                    foreach (PCB pcb in SystemMemory.Instance.Jobs)
+                    {
+                        if (pcb.Location == JobLocation.RAM)
+                        {
+                            if (pcb.Index > PCB.Start)
+                                pcb.Index -= PCB.Length;
+                        }
+                    }
                     break ;
                 default:
                     throw new UnknownCommandException();
@@ -123,9 +141,20 @@ namespace OperatingSystem
             PCB.PC++;
 
             //If we did all the instuctions, then terminate
-            if (PCB.Length == PCB.PC)
+            if (PCB.Length >= PCB.PC && PCB.State != ProcessState.Terminated)
             {
+                SavePCB();
                 PCB.State = ProcessState.Terminated;
+                _ram.RemoveJob(PCB.Start, PCB.Length);
+                //Update all the values of the other PCB's after we remove the main one
+                foreach (PCB pcb in SystemMemory.Instance.Jobs)
+                {
+                    if (pcb.Location == JobLocation.RAM)
+                    {
+                        if (pcb.Index > PCB.Start)
+                            pcb.Index -= PCB.Length;
+                    }
+                }
                 return;
             }
         }

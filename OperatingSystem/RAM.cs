@@ -31,7 +31,7 @@ namespace OperatingSystem
 
         public int AddJob(List<Instruction> instructions)
         {
-            int index = instructions.Count;
+            int index = Instructions.Count;
 
             if ((size + instructions.Count) < MaxSize)
                 Instructions.AddRange(instructions);
@@ -39,6 +39,11 @@ namespace OperatingSystem
                 throw new InsufficientRAMException();
 
             return index;
+        }
+
+        public void RemoveJob(int start, int length)
+        {
+            Instructions.RemoveRange(start, length);
         }
 
         public override string ToString()

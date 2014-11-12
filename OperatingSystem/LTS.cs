@@ -16,17 +16,16 @@ namespace OperatingSystem
         /// </summary>
         /// <param name="hdd">HDD to get the instructions from</param>
         /// <param name="ram">RAM to move the instructions to</param>
-        /// <param name="sysMem">PCB's for the instructions in the HDD</param>
-        /// <param name="readyQueue">ref to the ready queue to move the jobs into</param>
-        public static void FCFS(HDD hdd, RAM ram, SystemMemory sysMem, ref List<PCB> readyQueue)
+        public static void FCFS(HDD hdd, RAM ram)
         {
-            foreach (PCB pcb in sysMem)
+            foreach (PCB pcb in SystemMemory.Instance.Jobs)
             {
                 if (pcb.Location == JobLocation.HDD && ram.MaxSize > (ram.size + pcb.Length))
                 {
                     pcb.Index = ram.AddJob(hdd.Instructions.GetRange(pcb.Index, pcb.Length));
                     pcb.Location = JobLocation.RAM;
-                    readyQueue.Add(pcb);
+                    pcb.State = ProcessState.Ready;
+                    SystemMemory.Instance.Queues[QueueType.Ready].Add(pcb);
                 }  
             }
         }
@@ -36,19 +35,18 @@ namespace OperatingSystem
         /// </summary>
         /// <param name="hdd">HDD to get the instructions from</param>
         /// <param name="ram">RAM to move the instructions to</param>
-        /// <param name="sysMem">PCB's for the instructions in the HDD</param>
-        /// <param name="readyQueue">ref to the ready queue to move the jobs into</param>
-        public static void Priority(HDD hdd, RAM ram, SystemMemory sysMem, ref List<PCB> readyQueue)
+        public static void Priority(HDD hdd, RAM ram)
         {
-            sysMem.Sort(CompareByPriority);
+            SystemMemory.Instance.Jobs.Sort(CompareByPriority);
 
-            foreach (PCB pcb in sysMem)
+            foreach (PCB pcb in SystemMemory.Instance.Jobs)
             {
                 if (pcb.Location == JobLocation.HDD && ram.MaxSize > (ram.size + pcb.Length))
                 {
                     pcb.Index = ram.AddJob(hdd.Instructions.GetRange(pcb.Index, pcb.Length));
                     pcb.Location = JobLocation.RAM;
-                    readyQueue.Add(pcb);
+                    pcb.State = ProcessState.Ready;
+                    SystemMemory.Instance.Queues[QueueType.Ready].Add(pcb);
                 }      
             }
         }
@@ -58,19 +56,18 @@ namespace OperatingSystem
         /// </summary>
         /// <param name="hdd">HDD to get the instructions from</param>
         /// <param name="ram">RAM to move the instructions to</param>
-        /// <param name="sysMem">PCB's for the instructions in the HDD</param>
-        /// <param name="readyQueue">ref to the ready queue to move the jobs into</param>
-        public static void ShortestFirst(HDD hdd, RAM ram, SystemMemory sysMem, ref List<PCB> readyQueue)
+        public static void ShortestFirst(HDD hdd, RAM ram)
         {
-            sysMem.Sort(CompareByLength);
+            SystemMemory.Instance.Jobs.Sort(CompareByLength);
 
-            foreach (PCB pcb in sysMem)
+            foreach (PCB pcb in SystemMemory.Instance.Jobs)
             {
                 if (pcb.Location == JobLocation.HDD && ram.MaxSize > (ram.size + pcb.Length))
                 {
                     pcb.Index = ram.AddJob(hdd.Instructions.GetRange(pcb.Index, pcb.Length));
                     pcb.Location = JobLocation.RAM;
-                    readyQueue.Add(pcb);
+                    pcb.State = ProcessState.Ready;
+                    SystemMemory.Instance.Queues[QueueType.Ready].Add(pcb);
                 }     
 
             }

@@ -8,8 +8,9 @@ namespace OperatingSystem
 {
     public class PCB
     {
-        public byte Priority { set; get; }
-        public byte Length { set; get; }
+        public int Priority { set; get; }
+        public int Length { set; get; }
+        public int Start { get; set; }
         public ProcessState State { get; set; }
         public JobLocation Location { get; set; }
         public int Index { get; set; }
@@ -21,15 +22,18 @@ namespace OperatingSystem
         public int PC {get; set;}
         public int WaitQueueCycles { get; set; }
         public int IOQueueCycles { get; set; }
+        public int JobNumber { get; set; }
 
 
-        public PCB(byte p, byte len, int instNum, JobLocation loc)
+        public PCB(byte p, byte len, int instNum, JobLocation loc, int jn)
         {
             Priority = p;
             Length = len;
             PC = instNum;
+            Start = PC;
             State = ProcessState.New;
             Location = loc;
+            JobNumber = jn;
 
             RegisterA = 1;
             RegisterB = 3;
@@ -39,6 +43,7 @@ namespace OperatingSystem
 
             WaitQueueCycles = 0;
             IOQueueCycles = 0;
+
         }
     }
 }

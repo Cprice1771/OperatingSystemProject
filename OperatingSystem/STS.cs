@@ -11,32 +11,36 @@ namespace OperatingSystem
     /// </summary>
     public static class STS
     {
-        public static void SupplyCPU(CPU cpu, Dictionary<QueueType, List<PCB>> queues)
+        public static void SupplyCPU(CPU cpu, RAM ram)
         {
             if (cpu.IsWaiting)
             {
                 if (cpu.HasJob)
                 {
                     if (cpu.PCB.State == ProcessState.Ready)
-                        queues[QueueType.Ready].Add(cpu.PCB);
+                        SystemMemory.Instance.Queues[QueueType.Ready].Add(cpu.PCB);
                     else if(cpu.PCB.State == ProcessState.IO)
-                        queues[QueueType.IO].Add(cpu.PCB);
+                        SystemMemory.Instance.Queues[QueueType.IO].Add(cpu.PCB);
                     else if(cpu.PCB.State == ProcessState.Waiting)
-                        queues[QueueType.Waiting].Add(cpu.PCB);
+                        SystemMemory.Instance.Queues[QueueType.Waiting].Add(cpu.PCB);
                     else if (cpu.PCB.State == ProcessState.Terminated)
-                        queues[QueueType.Terminated].Add(cpu.PCB);
+                        SystemMemory.Instance.Queues[QueueType.Terminated].Add(cpu.PCB);
                     else if(cpu.PCB.State == ProcessState.Stopped)
                     {
                         cpu.PCB.State = ProcessState.Ready;
-                        queues[QueueType.Ready].Add(cpu.PCB);
+                        SystemMemory.Instance.Queues[QueueType.Ready].Add(cpu.PCB);
                     }
+
+                    cpu.UnloadPCB();
+
+
                 }
 
-                if (queues[QueueType.Ready].Count > 0)
+                if (SystemMemory.Instance.Queues[QueueType.Ready].Count > 0)
                 {
-                    cpu.LoadPCB(queues[QueueType.Ready][0]);
-                    queues[QueueType.Ready][0].State = ProcessState.Running;
-                    queues[QueueType.Ready].RemoveAt(0);
+                    cpu.LoadPCB(SystemMemory.Instance.Queues[QueueType.Ready][0], ram);
+                    SystemMemory.Instance.Queues[QueueType.Ready][0].State = ProcessState.Running;
+                    SystemMemory.Instance.Queues[QueueType.Ready].RemoveAt(0);
                 }
             }
         }

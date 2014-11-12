@@ -12,33 +12,30 @@ namespace OperatingSystem
     {
         HDD _hdd; //My harddrive
         RAM _ram; //My RAM
-        SystemMemory _sysMem; //My System memory containing the PCB's
         Boot _bootloader; //Our bootloader that parses the file of insturctions
         LTSAlgorithm _algorithm; //Enum of the algorith we should use
         int _ramSize; //Size of ram in number of instructions
         int _cpuCount; //How many cpus we should use
+        SystemMemory _sysMem; //ref to the system memory
         List<CPU> _cpus;
-        List<PCB> _readyQueue; //Ready queue of PCB's ready to be run
-        List<PCB> _waitQueue; //Wait queue of PCB's in wait steps
-        List<PCB> _IOQueue; //IO queue of PCB's doing IO
-        List<PCB> _terminateQueue; //List of all terminated PCB's
-        Dictionary<QueueType, List<PCB>> _queues;
+        
 
         public OperatingSystem(LTSAlgorithm algorithm, int ramSize, int cpuCount)
         {
             _hdd = new HDD();
             _ram = new RAM();
-            _sysMem = new SystemMemory();
+            SystemMemory.Flush();
+            _sysMem = SystemMemory.Instance;
             _bootloader = new Boot();
             _algorithm = algorithm;
             _ramSize = ramSize;
             _cpuCount = cpuCount;
-            _readyQueue = new List<PCB>();
-            _waitQueue = new List<PCB>();
-            _IOQueue = new List<PCB>();
-            _terminateQueue = new List<PCB>();
-            _queues = new Dictionary<QueueType, List<PCB>>();
+            
             _cpus = new List<CPU>(cpuCount);
+            for (int i = 0; i < cpuCount; i++)
+            {
+                _cpus.Add(new CPU(_ram));
+            }
         }
 
         /// <summary>
@@ -80,64 +77,83 @@ namespace OperatingSystem
             {
                 //Point the PCB to its first instruction location in the HDD
                 j.JobPCB.Index = _hdd.AddInstructions(j.Instructions);
-                _sysMem.Add(j.JobPCB);
+                SystemMemory.Instance.Jobs.Add(j.JobPCB);
             }
 
             //While we still have jobs that are not terminated
-            while (_sysMem.HasJobs)
+            while (SystemMemory.Instance.HasJobs)
             {
                 //Run the LTS which grabs jobs from the HDD and tries to put them in RAM based on the specified algorithm
                 switch (_algorithm)
                 {
                     case LTSAlgorithm.FCFS:
-                        LTS.FCFS(_hdd, _ram, _sysMem, ref _readyQueue);
-                        output += _ram.ToString();
-                        output += "Size: " + _ram.size;
-                        _ram.Flush();
+                        LTS.FCFS(_hdd, _ram);
+                        //output += _ram.ToString();
+                        //output += "Size: " + _ram.size;
+                        //_ram.Flush();
                         break;
                     case LTSAlgorithm.Priority:
-                        LTS.Priority(_hdd, _ram, _sysMem, ref _readyQueue);
-                        output += _ram.ToString();
-                        output += "Size: " + _ram.size;
-                        _ram.Flush();
+                        LTS.Priority(_hdd, _ram);
+                        //output += _ram.ToString();
+                        //output += "Size: " + _ram.size;
+                        //_ram.Flush();
                         break;
                     case LTSAlgorithm.Shortest:
-                        LTS.ShortestFirst(_hdd, _ram, _sysMem, ref _readyQueue);
-                        output += _ram.ToString();
-                        output += "Size: " + _ram.size;
-                        _ram.Flush();
+                        LTS.ShortestFirst(_hdd, _ram);
+                        //output += _ram.ToString();
+                        //output += "Size: " + _ram.size;
+                        //_ram.Flush();
                         break;
                 }
 
                 //Run the STS algorithm
                 foreach (CPU cpu in _cpus)
                 {
-                    STS.SupplyCPU(cpu, _queues);
+                    STS.SupplyCPU(cpu, _ram);
+                    //Execute 1 instruction in the CPU
                     cpu.Execute();
                 }
 
-                for (int i = _queues[QueueType.IO].Count; i > 0; i--)
+                //For all the jobs in the IO queue
+                for (int i = _sysMem.Queues[QueueType.IO].Count - 1; i >= 0; i--)
                 {
-                    _queues[QueueType.IO][i].WaitQueueCycles--;
-                    if (_queues[QueueType.IO][i].WaitQueueCycles <= 0)
+                    //Subtract 1 from the cycles remaining
+                    _sysMem.Queues[QueueType.IO][i].IOQueueCycles--;
+                    //if there's 0 cycles remaining 
+                    if (_sysMem.Queues[QueueType.IO][i].IOQueueCycles <= 0)
                     {
-                        _queues[QueueType.Ready].Add(_queues[QueueType.IO][i]);
-                        _queues[QueueType.IO].RemoveAt(i);
+                        //move it back to the ready queue
+                        _sysMem.Queues[QueueType.Ready].Add(_sysMem.Queues[QueueType.IO][i]);
+                        _sysMem.Queues[QueueType.IO].RemoveAt(i);
                     }
                 }
 
-                for (int i = _queues[QueueType.Waiting].Count; i > 0; i--)
+                //For all the jobs in the Wait queue
+                for (int i = _sysMem.Queues[QueueType.Waiting].Count - 1; i >= 0; i--)
                 {
-                    _queues[QueueType.Waiting][i].WaitQueueCycles--;
-                    if (_queues[QueueType.Waiting][i].WaitQueueCycles <= 0)
+                    //Subtract 1 from the cycles remaining
+                    _sysMem.Queues[QueueType.Waiting][i].WaitQueueCycles--;
+                    //if there's 0 cycles remaining 
+                    if (_sysMem.Queues[QueueType.Waiting][i].WaitQueueCycles <= 0)
                     {
-                        _queues[QueueType.Ready].Add(_queues[QueueType.Waiting][i]);
-                        _queues[QueueType.Waiting].RemoveAt(i);
+                        //move it back to the ready queue
+                        _sysMem.Queues[QueueType.Ready].Add(_sysMem.Queues[QueueType.Waiting][i]);
+                        _sysMem.Queues[QueueType.Waiting].RemoveAt(i);
                     }
                 }
 
             }
 
+
+            foreach (PCB pcb in SystemMemory.Instance.Jobs)
+            {
+                output += "Job: " + pcb.JobNumber + "\n";
+                output += "Acc: " + pcb.Accumulator + "\n";
+                output += "RegisterA: " + pcb.RegisterA + "\n";
+                output += "RegisterB: " + pcb.RegisterB + "\n";
+                output += "RegisterC: " + pcb.RegisterC + "\n";
+                output += "RegisterD: " + pcb.RegisterD + "\n";
+            }
             return output;
         }
     }
