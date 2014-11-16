@@ -144,17 +144,42 @@ namespace OperatingSystem
 
             }
 
+            //Sort the list of jobs by job number
+            SystemMemory.Instance.Jobs.Sort(CompareByJobNum);
 
+            //return out the header
+            output += "Job\tAcc\t A\t B\t C\t D\n"; 
+            //return out all the jobs
             foreach (PCB pcb in SystemMemory.Instance.Jobs)
             {
-                output += "Job: " + pcb.JobNumber + "\n";
-                output += "Acc: " + pcb.Accumulator + "\n";
-                output += "RegisterA: " + pcb.RegisterA + "\n";
-                output += "RegisterB: " + pcb.RegisterB + "\n";
-                output += "RegisterC: " + pcb.RegisterC + "\n";
-                output += "RegisterD: " + pcb.RegisterD + "\n";
+                output += pcb.JobNumber + "\t";
+                output += pcb.Accumulator + "\t ";
+                output += pcb.RegisterA + "\t ";
+                output += pcb.RegisterB + "\t ";
+                output += pcb.RegisterC + "\t ";
+                output += pcb.RegisterD + "\n";
             }
+
+
+            ////Print out all the jobs
+            //foreach (PCB pcb in SystemMemory.Instance.Jobs)
+            //{
+            //    output += "Job: " + pcb.JobNumber + "\n";
+            //    output += "Acc: " + pcb.Accumulator + "\n";
+            //    output += "RegisterA: " + pcb.RegisterA + "\n";
+            //    output += "RegisterB: " + pcb.RegisterB + "\n";
+            //    output += "RegisterC: " + pcb.RegisterC + "\n";
+            //    output += "RegisterD: " + pcb.RegisterD + "\n";
+            //}
             return output;
+        }
+
+        private static int CompareByJobNum(PCB A, PCB B)
+        {
+            if (A == null && B == null) return 0;
+            else if (A.JobNumber > B.JobNumber) return 1;
+            else if (A.JobNumber == B.JobNumber) return 0;
+            else return -1;
         }
     }
 }
