@@ -13,11 +13,18 @@ namespace OperatingSystem
 
         public List<Instruction> Instructions { get; set; }
 
+
         public int size
         {
             get
             {
-                return Instructions.Count;
+                int c;
+                lock (Instructions)
+                {
+                    c = Instructions.Count;
+                }
+
+                return c;
             }
         }
 
@@ -31,19 +38,27 @@ namespace OperatingSystem
 
         public int AddJob(List<Instruction> instructions)
         {
-            int index = Instructions.Count;
+            int index;
+            lock (Instructions)
+            {
+                index = Instructions.Count;
 
-            if ((size + instructions.Count) < MaxSize)
-                Instructions.AddRange(instructions);
-            else
-                throw new InsufficientRAMException();
+                if ((size + instructions.Count) < MaxSize)
+                    Instructions.AddRange(instructions);
+                else
+                    throw new InsufficientRAMException();
 
+                
+            }
             return index;
         }
 
         public void RemoveJob(int start, int length)
         {
-            Instructions.RemoveRange(start, length);
+            lock (Instructions)
+            {
+                Instructions.RemoveRange(start, length);
+            }
         }
 
         public override string ToString()

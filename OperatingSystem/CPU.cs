@@ -75,122 +75,91 @@ namespace OperatingSystem
 
         public void Execute(Object threadContext)
         {
+            if (_executing)
+                return;
+
             //Only do anything if the process is running
             if (PCB == null || PCB.State != ProcessState.Running)
                 return;
 
-            lock (_threadExecution)
+            
+
+            _executing = true;
+
+            Instruction currentInstruction;
+            //Get all the arguments
+            currentInstruction = _ram.Instructions[PCB.Index + PCB.PC];
+
+            int arg1 = GetArg(currentInstruction.Arg1);
+            int arg2 = GetArg(currentInstruction.Arg2);
+            int arg3 = currentInstruction.Arg3;
+
+            //Execute the command
+            switch (currentInstruction.Command)
             {
-                _executing = true;
-
-                Instruction currentInstruction;
-                //Get all the arguments
-                lock (_ram)
-                {
-                    currentInstruction = _ram.Instructions[PCB.Index + PCB.PC];
-                }
-
-                int arg1 = GetArg(currentInstruction.Arg1);
-                int arg2 = GetArg(currentInstruction.Arg2);
-                int arg3 = currentInstruction.Arg3;
-
-                //Execute the command
-                switch (currentInstruction.Command)
-                {
-                    case CommandType.mul:
-                        _accumulator += (arg1 * arg2);
-                        break;
-                    case CommandType.div:
-                        _accumulator += (arg2 / arg1);
-                        break;
-                    case CommandType.sub:
-                        _accumulator += (arg1 - arg2);
-                        break;
-                    case CommandType.add:
-                        _accumulator += (arg1 + arg2);
-                        break;
-                    case CommandType.rcl:
-                        CopyAccTo(currentInstruction.Arg1);
-                        break;
-                    case CommandType.rd:
-                        lock (PCB)
-                        {
-                            PCB.State = ProcessState.IO;
-                            PCB.IOQueueCycles = arg3;
-                        }
-                        break;
-                    case CommandType.sto:
-                        _accumulator = arg3;
-                        break;
-                    case CommandType.wt:
-                        lock (PCB)
-                        {
-                            PCB.State = ProcessState.Waiting;
-                            PCB.WaitQueueCycles = arg3;
-                            SavePCB();
-                        }
-                        break;
-                    case CommandType.wr:
-                        lock (PCB)
-                        {
-                            PCB.State = ProcessState.IO;
-                            PCB.IOQueueCycles = arg3;
-                            SavePCB();
-                        }
-                        break;
-                    case CommandType.nul:
-                        ResetRegisters();
-                        break;
-                    case CommandType.stp:
-                        lock (PCB)
-                        {
-                            SavePCB();
-                            //This should flag the STS to send it back to the end of the RQ
-                            PCB.State = ProcessState.Stopped;
-                        }
-                        break;
-                    case CommandType.err:
-                        lock (PCB)
-                        {
-                            SavePCB();
-                            PCB.State = ProcessState.Terminated;
-                        }
-
-                        lock (_ram)
-                        {
-                            _ram.RemoveJob(PCB.Start, PCB.Length);
-                        }
-
-                        lock (PCB)
-                        {
-                            //Update all the values of the other PCB's after we remove the main one
-                            foreach (PCB pcb in SystemMemory.Instance.Jobs)
-                            {
-                                if (pcb.Location == JobLocation.RAM)
-                                {
-                                    if (pcb.Index > PCB.Start)
-                                        pcb.Index -= PCB.Length;
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        throw new UnknownCommandException();
-                }
-
-                lock (PCB)
-                {
-                    PCB.PC++;
-
-                    //If we did all the instuctions, then terminate
-                    if (PCB.Length >= PCB.PC && PCB.State != ProcessState.Terminated)
+                case CommandType.mul:
+                    _accumulator += (arg1 * arg2);
+                    break;
+                case CommandType.div:
+                    _accumulator += (arg2 / arg1);
+                    break;
+                case CommandType.sub:
+                    _accumulator += (arg1 - arg2);
+                    break;
+                case CommandType.add:
+                    _accumulator += (arg1 + arg2);
+                    break;
+                case CommandType.rcl:
+                    CopyAccTo(currentInstruction.Arg1);
+                    break;
+                case CommandType.rd:
+                    lock (PCB)
+                    {
+                        PCB.State = ProcessState.IO;
+                        PCB.IOQueueCycles = arg3;
+                    }
+                    break;
+                case CommandType.sto:
+                    _accumulator = arg3;
+                    break;
+                case CommandType.wt:
+                    lock (PCB)
+                    {
+                        PCB.State = ProcessState.Waiting;
+                        PCB.WaitQueueCycles = arg3;
+                        SavePCB();
+                    }
+                    break;
+                case CommandType.wr:
+                    lock (PCB)
+                    {
+                        PCB.State = ProcessState.IO;
+                        PCB.IOQueueCycles = arg3;
+                        SavePCB();
+                    }
+                    break;
+                case CommandType.nul:
+                    ResetRegisters();
+                    break;
+                case CommandType.stp:
+                    lock (PCB)
+                    {
+                        SavePCB();
+                        //This should flag the STS to send it back to the end of the RQ
+                        PCB.State = ProcessState.Stopped;
+                    }
+                    break;
+                case CommandType.err:
+                    lock (PCB)
                     {
                         SavePCB();
                         PCB.State = ProcessState.Terminated;
-                        lock (_ram)
-                        {
-                            _ram.RemoveJob(PCB.Start, PCB.Length);
-                        }
+                    }
+
+                    _ram.RemoveJob(PCB.Start, PCB.Length);
+
+                    lock (PCB)
+                    {
                         //Update all the values of the other PCB's after we remove the main one
                         foreach (PCB pcb in SystemMemory.Instance.Jobs)
                         {
@@ -200,12 +169,37 @@ namespace OperatingSystem
                                     pcb.Index -= PCB.Length;
                             }
                         }
-                        return;
+                    }
+                    break;
+                default:
+                    throw new UnknownCommandException();
+            }
+
+            lock (PCB)
+            {
+                PCB.PC++;
+
+                //If we did all the instuctions, then terminate
+                if (PCB.Length >= PCB.PC && PCB.State != ProcessState.Terminated)
+                {
+                    SavePCB();
+                    PCB.State = ProcessState.Terminated;
+                    _ram.RemoveJob(PCB.Start, PCB.Length);
+                    //Update all the values of the other PCB's after we remove the main one
+                    foreach (PCB pcb in SystemMemory.Instance.Jobs)
+                    {
+                        if (pcb.Location == JobLocation.RAM)
+                        {
+                            if (pcb.Index > PCB.Start)
+                                pcb.Index -= PCB.Length;
+                        }
                     }
                 }
-
-                _executing = false;
             }
+
+                
+
+            _executing = false;
         }
 
         /// <summary>
