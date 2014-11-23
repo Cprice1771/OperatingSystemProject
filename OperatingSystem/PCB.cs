@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,9 @@ namespace OperatingSystem
         public int WaitQueueCycles { get; set; }
         public int IOQueueCycles { get; set; }
         public int JobNumber { get; set; }
+        public Stopwatch TurnaroundTimer { get; set; }
+        public Stopwatch WaitingTimer { get; set; }
+        public Stopwatch ResponseTimer { get; set; }
 
 
         public PCB(byte p, byte len, int instNum, JobLocation loc, int jn)
@@ -43,6 +47,10 @@ namespace OperatingSystem
 
             WaitQueueCycles = 0;
             IOQueueCycles = 0;
+
+            TurnaroundTimer = new Stopwatch();
+            WaitingTimer = new Stopwatch();
+            ResponseTimer = new Stopwatch();
 
         }
     }

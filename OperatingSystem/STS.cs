@@ -18,20 +18,25 @@ namespace OperatingSystem
                 if (cpu.HasJob)
                 {
                     if (cpu.PCB.State == ProcessState.Ready)
+                    {
                         SystemMemory.Instance.Queues[QueueType.Ready].Add(cpu.PCB);
-                    else if(cpu.PCB.State == ProcessState.IO)
+                        cpu.PCB.WaitingTimer.Start();
+                    }
+                    else if (cpu.PCB.State == ProcessState.IO)
                         SystemMemory.Instance.Queues[QueueType.IO].Add(cpu.PCB);
-                    else if(cpu.PCB.State == ProcessState.Waiting)
+                    else if (cpu.PCB.State == ProcessState.Waiting)
                         SystemMemory.Instance.Queues[QueueType.Waiting].Add(cpu.PCB);
                     else if (cpu.PCB.State == ProcessState.Terminated)
                         SystemMemory.Instance.Queues[QueueType.Terminated].Add(cpu.PCB);
-                    else if(cpu.PCB.State == ProcessState.Stopped)
+                    else if (cpu.PCB.State == ProcessState.Stopped)
                     {
                         cpu.PCB.State = ProcessState.Ready;
                         SystemMemory.Instance.Queues[QueueType.Ready].Add(cpu.PCB);
                     }
 
+                    cpu.PCB.TurnaroundTimer.Stop();
                     cpu.UnloadPCB();
+                    
 
 
                 }
@@ -40,6 +45,8 @@ namespace OperatingSystem
                 {
                     cpu.LoadPCB(SystemMemory.Instance.Queues[QueueType.Ready][0], ram);
                     SystemMemory.Instance.Queues[QueueType.Ready][0].State = ProcessState.Running;
+                    SystemMemory.Instance.Queues[QueueType.Ready][0].WaitingTimer.Stop();
+                    SystemMemory.Instance.Queues[QueueType.Ready][0].TurnaroundTimer.Start();
                     SystemMemory.Instance.Queues[QueueType.Ready].RemoveAt(0);
                 }
             }

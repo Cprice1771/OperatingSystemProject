@@ -16,6 +16,7 @@ namespace OperatingSystem
         
         RAM _ram;
 
+        public int ExecutionCycles { get; set; }
         public PCB PCB { get; set; }
         public bool HasJob {
             get
@@ -45,6 +46,7 @@ namespace OperatingSystem
             _registerD = 7;
             _accumulator = 9;
             _ram = ram;
+            ExecutionCycles = 0;
         }
 
         public void UnloadPCB()
@@ -69,7 +71,12 @@ namespace OperatingSystem
             if (PCB == null || PCB.State != ProcessState.Running)
                 return;
 
-            
+            if (PCB.ResponseTimer.IsRunning)
+            {
+                PCB.ResponseTimer.Stop();
+            }
+
+            ExecutionCycles++;
 
             //Get all the arguments
             Instruction currentInstruction = _ram.Instructions[PCB.Index + PCB.PC];
@@ -119,10 +126,12 @@ namespace OperatingSystem
                     SavePCB();
                     //This should flag the STS to send it back to the end of the RQ
                     PCB.State = ProcessState.Stopped;
+                    PCB.TurnaroundTimer.Stop();
                     break ;
                 case CommandType.err:
                     SavePCB();
                     PCB.State = ProcessState.Terminated;
+                    PCB.TurnaroundTimer.Stop();
                     _ram.RemoveJob(PCB.Start, PCB.Length);
                     //Update all the values of the other PCB's after we remove the main one
                     foreach (PCB pcb in SystemMemory.Instance.Jobs)
@@ -140,11 +149,14 @@ namespace OperatingSystem
 
             PCB.PC++;
 
+            
+
             //If we did all the instuctions, then terminate
             if (PCB.Length >= PCB.PC && PCB.State != ProcessState.Terminated)
             {
                 SavePCB();
                 PCB.State = ProcessState.Terminated;
+                PCB.TurnaroundTimer.Stop();
                 _ram.RemoveJob(PCB.Start, PCB.Length);
                 //Update all the values of the other PCB's after we remove the main one
                 foreach (PCB pcb in SystemMemory.Instance.Jobs)

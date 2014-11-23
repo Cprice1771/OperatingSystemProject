@@ -26,6 +26,8 @@ namespace OperatingSystem
                     pcb.Location = JobLocation.RAM;
                     pcb.State = ProcessState.Ready;
                     SystemMemory.Instance.Queues[QueueType.Ready].Add(pcb);
+                    pcb.WaitingTimer.Start();
+                    pcb.ResponseTimer.Start();
                 }  
             }
         }
@@ -47,6 +49,8 @@ namespace OperatingSystem
                     pcb.Location = JobLocation.RAM;
                     pcb.State = ProcessState.Ready;
                     SystemMemory.Instance.Queues[QueueType.Ready].Add(pcb);
+                    pcb.WaitingTimer.Start();
+                    pcb.ResponseTimer.Start();
                 }      
             }
         }
@@ -68,6 +72,8 @@ namespace OperatingSystem
                     pcb.Location = JobLocation.RAM;
                     pcb.State = ProcessState.Ready;
                     SystemMemory.Instance.Queues[QueueType.Ready].Add(pcb);
+                    pcb.WaitingTimer.Start();
+                    pcb.ResponseTimer.Start();
                 }     
 
             }

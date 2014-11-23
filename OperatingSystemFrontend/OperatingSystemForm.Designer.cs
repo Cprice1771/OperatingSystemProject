@@ -100,7 +100,7 @@
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(301, 529);
+            this.button1.Location = new System.Drawing.Point(407, 529);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 6;
@@ -116,7 +116,7 @@
             this.richTextBoxRAM.Location = new System.Drawing.Point(12, 141);
             this.richTextBoxRAM.Name = "richTextBoxRAM";
             this.richTextBoxRAM.ReadOnly = true;
-            this.richTextBoxRAM.Size = new System.Drawing.Size(364, 382);
+            this.richTextBoxRAM.Size = new System.Drawing.Size(470, 382);
             this.richTextBoxRAM.TabIndex = 7;
             this.richTextBoxRAM.Text = "";
             // 
@@ -135,13 +135,13 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.fileNameTextBox.Location = new System.Drawing.Point(48, 13);
             this.fileNameTextBox.Name = "fileNameTextBox";
-            this.fileNameTextBox.Size = new System.Drawing.Size(297, 20);
+            this.fileNameTextBox.Size = new System.Drawing.Size(403, 20);
             this.fileNameTextBox.TabIndex = 9;
             // 
             // selectFileButton
             // 
             this.selectFileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.selectFileButton.Location = new System.Drawing.Point(351, 13);
+            this.selectFileButton.Location = new System.Drawing.Point(457, 13);
             this.selectFileButton.Name = "selectFileButton";
             this.selectFileButton.Size = new System.Drawing.Size(25, 23);
             this.selectFileButton.TabIndex = 10;
@@ -162,7 +162,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(388, 564);
+            this.ClientSize = new System.Drawing.Size(494, 564);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.selectFileButton);
             this.Controls.Add(this.fileNameTextBox);
