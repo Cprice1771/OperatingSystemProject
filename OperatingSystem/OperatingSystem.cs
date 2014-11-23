@@ -110,7 +110,7 @@ namespace OperatingSystem
                 //Run the STS algorithm
                 foreach (CPU cpu in _cpus)
                 {
-                    STS.SupplyCPU(cpu, _ram);
+                    STS.SupplyCPU(cpu, ref _ram);
                     //Execute 1 instruction in the CPU
                     ThreadPool.QueueUserWorkItem(cpu.Execute);
                     

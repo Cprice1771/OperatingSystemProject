@@ -42,7 +42,8 @@ namespace OperatingSystem
     public enum JobLocation
     {
         HDD,
-        RAM
+        RAM,
+        TERMINATED
     }
 
     public enum ProcessState
