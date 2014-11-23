@@ -19,20 +19,19 @@ namespace OperatingSystem
                 {
                     if (cpu.PCB.State == ProcessState.Ready)
                         SystemMemory.Instance.Queues[QueueType.Ready].Add(cpu.PCB);
-                    else if(cpu.PCB.State == ProcessState.IO)
+                    else if (cpu.PCB.State == ProcessState.IO)
                         SystemMemory.Instance.Queues[QueueType.IO].Add(cpu.PCB);
-                    else if(cpu.PCB.State == ProcessState.Waiting)
+                    else if (cpu.PCB.State == ProcessState.Waiting)
                         SystemMemory.Instance.Queues[QueueType.Waiting].Add(cpu.PCB);
                     else if (cpu.PCB.State == ProcessState.Terminated)
                         SystemMemory.Instance.Queues[QueueType.Terminated].Add(cpu.PCB);
-                    else if(cpu.PCB.State == ProcessState.Stopped)
+                    else if (cpu.PCB.State == ProcessState.Stopped)
                     {
                         cpu.PCB.State = ProcessState.Ready;
                         SystemMemory.Instance.Queues[QueueType.Ready].Add(cpu.PCB);
                     }
 
-                    cpu.UnloadPCB();
-
+                    cpu.UnloadPCB();    
 
                 }
 

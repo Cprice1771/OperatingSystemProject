@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OperatingSystem
@@ -111,7 +112,8 @@ namespace OperatingSystem
                 {
                     STS.SupplyCPU(cpu, _ram);
                     //Execute 1 instruction in the CPU
-                    cpu.Execute();
+                    ThreadPool.QueueUserWorkItem(cpu.Execute);
+                    
                 }
 
                 //For all the jobs in the IO queue
