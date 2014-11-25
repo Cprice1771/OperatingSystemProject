@@ -63,8 +63,8 @@ namespace OperatingSystem
                 else
                     throw new InvalidRamOperationException();
 
-                Instructions.RemoveRange(pcb.Start, pcb.Length);
-                CompactRam(pcb.Start, pcb.Length);
+                Instructions.RemoveRange(pcb.Index, pcb.Length);
+                CompactRam(pcb.Index, pcb.Length);
                 pcb.Location = JobLocation.TERMINATED;
             }
             
