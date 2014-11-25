@@ -30,6 +30,7 @@ namespace OperatingSystem
                     return false;
             }
               }
+        public int ExecutionCycles;
         public bool IsWaiting
         {
             get
@@ -51,6 +52,7 @@ namespace OperatingSystem
             _ram = ram;
             _executing = false;
             _threadExecution = new object();
+            ExecutionCycles = 0;
         }
 
         public void UnloadPCB()
@@ -79,12 +81,16 @@ namespace OperatingSystem
             if (_executing)
                 return;
 
-            //Only do anything if the process is running
-            if (PCB == null || PCB.State != ProcessState.Running)
-                return;
-
             _executing = true;
 
+            //Only do anything if the process is running
+            if (PCB == null || PCB.State != ProcessState.Running)
+            {
+                _executing = false;
+                return;
+            }
+
+            ExecutionCycles++;
             bool RemovePCB = false;
 
             Instruction currentInstruction;
