@@ -134,14 +134,7 @@ namespace OperatingSystem
                     PCB.TurnaroundTimer.Stop();
                     _ram.RemoveJob(PCB.Start, PCB.Length);
                     //Update all the values of the other PCB's after we remove the main one
-                    foreach (PCB pcb in SystemMemory.Instance.Jobs)
-                    {
-                        if (pcb.Location == JobLocation.RAM)
-                        {
-                            if (pcb.Index > PCB.Start)
-                                pcb.Index -= PCB.Length;
-                        }
-                    }
+                    
                     break ;
                 default:
                     throw new UnknownCommandException();
@@ -152,21 +145,13 @@ namespace OperatingSystem
             
 
             //If we did all the instuctions, then terminate
-            if (PCB.Length >= PCB.PC && PCB.State != ProcessState.Terminated)
+            if (PCB.Length <= PCB.PC && PCB.State != ProcessState.Terminated)
             {
                 SavePCB();
                 PCB.State = ProcessState.Terminated;
                 PCB.TurnaroundTimer.Stop();
                 _ram.RemoveJob(PCB.Start, PCB.Length);
                 //Update all the values of the other PCB's after we remove the main one
-                foreach (PCB pcb in SystemMemory.Instance.Jobs)
-                {
-                    if (pcb.Location == JobLocation.RAM)
-                    {
-                        if (pcb.Index > PCB.Start)
-                            pcb.Index -= PCB.Length;
-                    }
-                }
                 return;
             }
         }
