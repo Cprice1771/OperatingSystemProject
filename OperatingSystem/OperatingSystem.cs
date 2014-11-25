@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,8 @@ namespace OperatingSystem
         int _cpuCount; //How many cpus we should use
         SystemMemory _sysMem; //ref to the system memory
         List<CPU> _cpus;
-        
+        int _totalCycles;
+        Stopwatch _throughput;
 
         public OperatingSystem(LTSAlgorithm algorithm, int ramSize, int cpuCount)
         {
@@ -31,7 +33,8 @@ namespace OperatingSystem
             _algorithm = algorithm;
             _ramSize = ramSize;
             _cpuCount = cpuCount;
-            
+            _totalCycles = 0;
+            _throughput = new Stopwatch();
             _cpus = new List<CPU>(cpuCount);
             for (int i = 0; i < cpuCount; i++)
             {
@@ -81,9 +84,12 @@ namespace OperatingSystem
                 SystemMemory.Instance.Jobs.Add(j.JobPCB);
             }
 
+            _throughput.Start();
+
             //While we still have jobs that are not terminated
             while (SystemMemory.Instance.HasJobs)
             {
+                _totalCycles++;
                 //Run the LTS which grabs jobs from the HDD and tries to put them in RAM based on the specified algorithm
                 switch (_algorithm)
                 {
@@ -146,11 +152,21 @@ namespace OperatingSystem
 
             }
 
+            _throughput.Stop();
+
+            output += "Throughput: " + Math.Round((double)_sysMem.Jobs.Count / ((double)_throughput.ElapsedTicks / (double)Stopwatch.Frequency) / 1000, 5) + " Job/ms \n";
             //Sort the list of jobs by job number
             SystemMemory.Instance.Jobs.Sort(CompareByJobNum);
 
+            for(int i = 0; i < _cpus.Count; i++)
+            {
+                double util = Math.Round((double)_cpus[i].ExecutionCycles / (double)_totalCycles, 2);
+                output += "CPU: " + i + " Utilization: " + util + "\n";
+            }
+
+
             //return out the header
-            output += "Job\tAcc\t A\t B\t C\t D\n"; 
+            output += "Job\tAcc\t A\t B\t C\t D\tTA \t Wait \t Resp\n"; 
             //return out all the jobs
             foreach (PCB pcb in SystemMemory.Instance.Jobs)
             {
@@ -159,9 +175,13 @@ namespace OperatingSystem
                 output += pcb.RegisterA + "\t ";
                 output += pcb.RegisterB + "\t ";
                 output += pcb.RegisterC + "\t ";
-                output += pcb.RegisterD + "\n";
+                output += pcb.RegisterD + "\t";
+                output += Math.Round(((double)pcb.TurnaroundTimer.ElapsedTicks / (double)Stopwatch.Frequency) * 1000, 5) + "\t ";
+                output += Math.Round(((double)pcb.WaitingTimer.ElapsedTicks / (double)Stopwatch.Frequency) * 1000, 5) + "\t ";
+                output += Math.Round(((double)pcb.ResponseTimer.ElapsedTicks / (double)Stopwatch.Frequency) * 1000, 5) + "\n";
             }
 
+            _throughput.Reset();
 
             ////Print out all the jobs
             //foreach (PCB pcb in SystemMemory.Instance.Jobs)

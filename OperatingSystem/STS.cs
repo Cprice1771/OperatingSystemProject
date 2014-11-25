@@ -18,7 +18,10 @@ namespace OperatingSystem
                 if (cpu.HasJob)
                 {
                     if (cpu.PCB.State == ProcessState.Ready)
+                    {
                         SystemMemory.Instance.Queues[QueueType.Ready].Add(cpu.PCB);
+                        cpu.PCB.WaitingTimer.Start();
+                    }
                     else if (cpu.PCB.State == ProcessState.IO)
                         SystemMemory.Instance.Queues[QueueType.IO].Add(cpu.PCB);
                     else if (cpu.PCB.State == ProcessState.Waiting)
@@ -31,7 +34,9 @@ namespace OperatingSystem
                         SystemMemory.Instance.Queues[QueueType.Ready].Add(cpu.PCB);
                     }
 
-                    cpu.UnloadPCB();    
+                    cpu.PCB.TurnaroundTimer.Stop();
+                    cpu.UnloadPCB();
+                    
 
                 }
 
@@ -39,6 +44,8 @@ namespace OperatingSystem
                 {
                     cpu.LoadPCB(SystemMemory.Instance.Queues[QueueType.Ready][0], ref ram);
                     SystemMemory.Instance.Queues[QueueType.Ready][0].State = ProcessState.Running;
+                    SystemMemory.Instance.Queues[QueueType.Ready][0].WaitingTimer.Stop();
+                    SystemMemory.Instance.Queues[QueueType.Ready][0].TurnaroundTimer.Start();
                     SystemMemory.Instance.Queues[QueueType.Ready].RemoveAt(0);
                 }
             }
