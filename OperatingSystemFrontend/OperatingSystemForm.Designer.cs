@@ -53,6 +53,7 @@
             this.comboBoxLTS.Name = "comboBoxLTS";
             this.comboBoxLTS.Size = new System.Drawing.Size(91, 21);
             this.comboBoxLTS.TabIndex = 0;
+            this.comboBoxLTS.Text = "FCFS";
             // 
             // label1
             // 

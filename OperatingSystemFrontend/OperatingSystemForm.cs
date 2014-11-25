@@ -20,7 +20,7 @@ namespace OperatingSystemFrontend
         {
             InitializeComponent();
             
-            fileNameTextBox.Text = Directory.GetCurrentDirectory() + "\\Input\\ugradPart1.txt";
+            fileNameTextBox.Text = Directory.GetCurrentDirectory() + "\\Input\\ugradPart2.txt";
         }
 
         private void button1_Click(object sender, EventArgs e)
