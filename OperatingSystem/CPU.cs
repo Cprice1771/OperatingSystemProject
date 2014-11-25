@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OperatingSystem.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -78,21 +79,23 @@ namespace OperatingSystem
             if (_executing)
                 return;
 
-            
-
             //Only do anything if the process is running
             if (PCB == null || PCB.State != ProcessState.Running)
                 return;
 
-            bool compactRam = false;
+            _executing = true;
+
+            bool RemovePCB = false;
+
+            Instruction currentInstruction;
+
+            lock (_ram.Instructions)
+            {
+                currentInstruction = _ram.Instructions[PCB.Index + PCB.PC];
+            }
 
             lock (PCB)
             {
-                _executing = true;
-                Instruction currentInstruction;
-                //Get all the arguments
-                currentInstruction = _ram.Instructions[PCB.Index + PCB.PC];
-
                 int arg1 = GetArg(currentInstruction.Arg1);
                 int arg2 = GetArg(currentInstruction.Arg2);
                 int arg3 = currentInstruction.Arg3;
@@ -143,9 +146,10 @@ namespace OperatingSystem
                     case CommandType.err:
                         SavePCB();
                         PCB.State = ProcessState.Terminated;
-                        _ram.RemoveJob(PCB.Start, PCB.Length);
                         PCB.Location = JobLocation.TERMINATED;
-                        compactRam = true;
+                        RemovePCB = true;
+                        
+                        
                         break;
                     default:
                         throw new UnknownCommandException();
@@ -154,39 +158,22 @@ namespace OperatingSystem
                 PCB.PC++;
 
                 //If we did all the instuctions, then terminate
-                if (PCB.Length >= PCB.PC && PCB.State != ProcessState.Terminated)
+                if (PCB.Length <= PCB.PC && PCB.State != ProcessState.Terminated)
                 {
                     SavePCB();
-                    PCB.State = ProcessState.Terminated;
-                    _ram.RemoveJob(PCB.Start, PCB.Length);
-                    PCB.Location = JobLocation.TERMINATED;
+                   PCB.State = ProcessState.Terminated;
+                   PCB.Location = JobLocation.TERMINATED;
+                   RemovePCB = true;
                     
-                    compactRam = true;
                 }
-
-
 
                 _executing = false;
             }
 
-            //Update all the values of the other PCB's after we remove the main one
-            if (compactRam)
-            {
-                lock (SystemMemory.Instance.Jobs)
-                {
-                    foreach (PCB pcb in SystemMemory.Instance.Jobs)
-                    {
-
-                        if (pcb.Location == JobLocation.RAM)
-                        {
-                            if (pcb.Index > PCB.Start)
-                                pcb.Index -= PCB.Length;
-                        }
-
-                    }
-                }
-
-            }
+            if(RemovePCB)
+                _ram.RemoveJob(PCB);
+            
+            
         }
 
         /// <summary>

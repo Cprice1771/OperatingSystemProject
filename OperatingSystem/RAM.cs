@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OperatingSystem.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace OperatingSystem
     {
         //public const int MAX_SIZE = 100;
         public int MaxSize;
-
+        public List<int> removedJobs = new List<int>();
         public List<Instruction> Instructions { get; set; }
 
 
@@ -53,12 +54,20 @@ namespace OperatingSystem
             return index;
         }
 
-        public void RemoveJob(int start, int length)
+        public void RemoveJob(PCB pcb)
         {
             lock (Instructions)
             {
-                Instructions.RemoveRange(start, length);
+                if(!removedJobs.Contains(pcb.JobNumber))
+                    removedJobs.Add(pcb.JobNumber);
+                else
+                    throw new InvalidRamOperationException();
+
+                Instructions.RemoveRange(pcb.Start, pcb.Length);
+                CompactRam(pcb.Start, pcb.Length);
             }
+
+            
         }
 
         public override string ToString()
@@ -74,6 +83,27 @@ namespace OperatingSystem
         internal void Flush()
         {
             Instructions = new List<Instruction>();
+        }
+
+        private void CompactRam(int start, int length)
+        {
+            foreach (PCB pcb in SystemMemory.Instance.Jobs)
+            {
+                lock (pcb)
+                {
+                    if (pcb.Location == JobLocation.RAM)
+                    {
+                        if (pcb.Index > start)
+                        {
+                            if (pcb.Index < length)
+                                throw new InvalidRamOperationException();
+                            else
+                                pcb.Index -= length;
+                        }
+                    }
+                }
+            }   
+  
         }
     }
 }

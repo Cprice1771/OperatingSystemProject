@@ -49,6 +49,7 @@
     <Compile Include="Boot.cs" />
     <Compile Include="CPU.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="Exceptions\InvalidRamOperationException.cs" />
     <Compile Include="FileParser.cs" />
     <Compile Include="HDD.cs" />
     <Compile Include="Instruction.cs" />

@@ -52,7 +52,7 @@ namespace OperatingSystem
             {
                 foreach (PCB pcb in Jobs)
                 {
-                    if (pcb.State == ProcessState.Terminated)
+                    if (pcb.State == ProcessState.Terminated && pcb.Location == JobLocation.TERMINATED)
                         continue;
 
                     return true;
