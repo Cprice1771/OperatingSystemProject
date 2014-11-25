@@ -133,6 +133,7 @@ namespace OperatingSystem
                     PCB.State = ProcessState.Terminated;
                     PCB.TurnaroundTimer.Stop();
                     _ram.RemoveJob(PCB.Start, PCB.Length);
+                    PCB.Location = JobLocation.TERMINATED;
                     //Update all the values of the other PCB's after we remove the main one
                     
                     break ;
@@ -151,6 +152,7 @@ namespace OperatingSystem
                 PCB.State = ProcessState.Terminated;
                 PCB.TurnaroundTimer.Stop();
                 _ram.RemoveJob(PCB.Start, PCB.Length);
+                PCB.Location = JobLocation.TERMINATED;
                 //Update all the values of the other PCB's after we remove the main one
                 return;
             }

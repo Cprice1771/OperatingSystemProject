@@ -54,7 +54,9 @@ namespace OperatingSystem
             {
                 if (pcb.Location == JobLocation.RAM)
                 {
-                    if (pcb.Index > start)
+                    if (pcb.Index < length)
+                        throw new InvalidOperationException("Error");
+                    else if(pcb.Index > start)
                         pcb.Index -= length;
                 }
             }
