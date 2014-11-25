@@ -65,6 +65,7 @@ namespace OperatingSystem
 
                 Instructions.RemoveRange(pcb.Start, pcb.Length);
                 CompactRam(pcb.Start, pcb.Length);
+                pcb.Location = JobLocation.TERMINATED;
             }
             
         }
