@@ -41,11 +41,10 @@ namespace OperatingSystem
             return index;
         }
 
-        public void RemoveJob(int start, int length)
+        public void RemoveJob(PCB pcb)
         {
-            Instructions.RemoveRange(start, length);
-            CompactRam(start, length);
-            
+            Instructions.RemoveRange(pcb.Index, pcb.Length);
+            CompactRam(pcb.Index, pcb.Length);
         }
 
         private void CompactRam(int start, int length)
@@ -54,10 +53,13 @@ namespace OperatingSystem
             {
                 if (pcb.Location == JobLocation.RAM)
                 {
-                    if (pcb.Index < length)
-                        throw new InvalidOperationException("Error");
-                    else if(pcb.Index > start)
+                    if (pcb.Index > start)
+                    {
+                        if (pcb.Index < length)
+                            throw new InvalidOperationException("Error");
+
                         pcb.Index -= length;
+                    }
                 }
             }
         }
