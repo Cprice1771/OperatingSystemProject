@@ -61,7 +61,7 @@
     <Compile Include="PCB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RAM.cs" />
-    <Compile Include="Results.cs" />
+    <Compile Include="Result.cs" />
     <Compile Include="STS.cs" />
     <Compile Include="SystemMemory.cs" />
     <Compile Include="Exceptions\UnknownCommandException.cs" />

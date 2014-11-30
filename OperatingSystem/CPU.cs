@@ -59,7 +59,7 @@ namespace OperatingSystem
             ExecutionCycles = 0;
         }
 
-        public void UnloadPCB()
+        internal void UnloadPCB()
         {
             lock (_threadExecution)
             {
@@ -67,7 +67,7 @@ namespace OperatingSystem
             }
         }
 
-        public void LoadPCB(PCB input, ref RAM ram)
+        internal void LoadPCB(PCB input, ref RAM ram)
         {
             lock (_threadExecution)
             {
@@ -81,7 +81,7 @@ namespace OperatingSystem
             }
         }
 
-        public void Execute(Object threadContext)
+        internal void Execute(Object threadContext)
         {
             lock (_threadExecution)
             {
@@ -156,6 +156,7 @@ namespace OperatingSystem
                         case CommandType.err:
                             SavePCB();
                             PCB.State = ProcessState.Terminated;
+                            PCB.TurnaroundTimer.Stop();
                             RemovePCB = true;
 
                             break;
@@ -172,6 +173,7 @@ namespace OperatingSystem
                         {
                             SavePCB();
                             PCB.State = ProcessState.Terminated;
+                            PCB.TurnaroundTimer.Stop();
                             RemovePCB = true;
                         }
                     }

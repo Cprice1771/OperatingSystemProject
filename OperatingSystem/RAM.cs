@@ -9,7 +9,6 @@ namespace OperatingSystem
 {
     public class RAM
     {
-        //public const int MAX_SIZE = 100;
         public int MaxSize;
         public List<int> removedJobs = new List<int>();
         public List<Instruction> Instructions { get; set; }

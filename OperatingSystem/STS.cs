@@ -11,7 +11,7 @@ namespace OperatingSystem
     /// </summary>
     public static class STS
     {
-        public static void SupplyCPU(CPU cpu, ref RAM ram)
+        internal static void SupplyCPU(CPU cpu, ref RAM ram)
         {
             if (cpu.IsWaiting)
             {
@@ -34,7 +34,7 @@ namespace OperatingSystem
                         SystemMemory.Instance.Queues[QueueType.Ready].Add(cpu.PCB);
                     }
 
-                    cpu.PCB.TurnaroundTimer.Stop();
+                    
                     cpu.UnloadPCB();
                     
 

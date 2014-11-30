@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OperatingSystem
 {
-    public class Results
+    public class Result
     {
         public double Throughput { get; set; }
         public List<double> CPUUtilizations { get; set; }

@@ -11,81 +11,13 @@ namespace OperatingSystem
     /// </summary>
     public static class LTS
     {
-        ///// <summary>
-        ///// Moves PCB's from the HDD to the ram on a first come first serve basis
-        ///// </summary>
-        ///// <param name="hdd">HDD to get the instructions from</param>
-        ///// <param name="ram">RAM to move the instructions to</param>
-        //public static void FCFS(HDD hdd, RAM ram)
-        //{
-        //    foreach (PCB pcb in SystemMemory.Instance.Jobs)
-        //    {
-        //        if (pcb.Location == JobLocation.HDD && ram.MaxSize > (ram.size + pcb.Length))
-        //        {
-        //            pcb.Index = ram.AddJob(hdd.Instructions.GetRange(pcb.Index, pcb.Length));
-        //            pcb.Location = JobLocation.RAM;
-        //            pcb.State = ProcessState.Ready;
-        //            SystemMemory.Instance.Queues[QueueType.Ready].Add(pcb);
-        //            pcb.WaitingTimer.Start();
-        //            pcb.ResponseTimer.Start();
-        //        }  
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Moves PCB's from the HDD to the ram based on priority
-        ///// </summary>
-        ///// <param name="hdd">HDD to get the instructions from</param>
-        ///// <param name="ram">RAM to move the instructions to</param>
-        //public static void Priority(HDD hdd, RAM ram)
-        //{
-            
-
-        //    foreach (PCB pcb in SystemMemory.Instance.Jobs)
-        //    {
-        //        if (pcb.Location == JobLocation.HDD && ram.MaxSize > (ram.size + pcb.Length))
-        //        {
-        //            pcb.Index = ram.AddJob(hdd.Instructions.GetRange(pcb.Index, pcb.Length));
-        //            pcb.Location = JobLocation.RAM;
-        //            pcb.State = ProcessState.Ready;
-        //            SystemMemory.Instance.Queues[QueueType.Ready].Add(pcb);
-        //            pcb.WaitingTimer.Start();
-        //            pcb.ResponseTimer.Start();
-        //        }      
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Moves PCB's from the HDD to the ram starting with the shortest job first
-        ///// </summary>
-        ///// <param name="hdd">HDD to get the instructions from</param>
-        ///// <param name="ram">RAM to move the instructions to</param>
-        //public static void ShortestFirst(HDD hdd, RAM ram)
-        //{
-           
-
-        //    foreach (PCB pcb in SystemMemory.Instance.Jobs)
-        //    {
-        //        if (pcb.Location == JobLocation.HDD && ram.MaxSize > (ram.size + pcb.Length))
-        //        {
-        //            pcb.Index = ram.AddJob(hdd.Instructions.GetRange(pcb.Index, pcb.Length));
-        //            pcb.Location = JobLocation.RAM;
-        //            pcb.State = ProcessState.Ready;
-        //            SystemMemory.Instance.Queues[QueueType.Ready].Add(pcb);
-        //            pcb.WaitingTimer.Start();
-        //            pcb.ResponseTimer.Start();
-        //        }     
-
-        //    }
-        //}
-
         /// <summary>
         /// Compare method for comparing two PCB's by priority
         /// </summary>
         /// <param name="A">first PCB to compare</param>
         /// <param name="B">second PCB to compare</param>
         /// <returns>0 if equal, 1 if A less than B, -1 if A is greater than B</returns>
-        public static int CompareByPriority(PCB A, PCB B)
+        internal static int CompareByPriority(PCB A, PCB B)
         {
             if (A == null && B == null) return 0;
             else if (A.Priority < B.Priority) return 1;
@@ -99,7 +31,7 @@ namespace OperatingSystem
         /// <param name="A">first PCB to compare</param>
         /// <param name="B">second PCB to compare</param>
         /// <returns>0 if equal, 1 if A less than B, -1 if A is greater than B</returns>
-        public static int CompareByLength(PCB A, PCB B)
+        internal static int CompareByLength(PCB A, PCB B)
         {
             if (A == null && B == null) return 0;
             else if (A.Length > B.Length) return 1;

@@ -40,6 +40,8 @@
             this.fileNameTextBox = new System.Windows.Forms.TextBox();
             this.selectFileButton = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
+            this.textBoxIterations = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // comboBoxLTS
@@ -76,7 +78,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 101);
+            this.label3.Location = new System.Drawing.Point(208, 45);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(89, 13);
             this.label3.TabIndex = 3;
@@ -92,7 +94,7 @@
             // 
             // textBoxCPUCount
             // 
-            this.textBoxCPUCount.Location = new System.Drawing.Point(102, 96);
+            this.textBoxCPUCount.Location = new System.Drawing.Point(298, 40);
             this.textBoxCPUCount.Name = "textBoxCPUCount";
             this.textBoxCPUCount.Size = new System.Drawing.Size(38, 20);
             this.textBoxCPUCount.TabIndex = 5;
@@ -114,10 +116,10 @@
             this.richTextBoxRAM.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBoxRAM.Location = new System.Drawing.Point(12, 141);
+            this.richTextBoxRAM.Location = new System.Drawing.Point(12, 116);
             this.richTextBoxRAM.Name = "richTextBoxRAM";
             this.richTextBoxRAM.ReadOnly = true;
-            this.richTextBoxRAM.Size = new System.Drawing.Size(470, 382);
+            this.richTextBoxRAM.Size = new System.Drawing.Size(470, 407);
             this.richTextBoxRAM.TabIndex = 7;
             this.richTextBoxRAM.Text = "";
             // 
@@ -153,17 +155,36 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 125);
+            this.label5.Location = new System.Drawing.Point(9, 100);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(34, 13);
+            this.label5.Size = new System.Drawing.Size(45, 13);
             this.label5.TabIndex = 11;
-            this.label5.Text = "RAM:";
+            this.label5.Text = "Results:";
+            // 
+            // textBoxIterations
+            // 
+            this.textBoxIterations.Location = new System.Drawing.Point(298, 68);
+            this.textBoxIterations.Name = "textBoxIterations";
+            this.textBoxIterations.Size = new System.Drawing.Size(38, 20);
+            this.textBoxIterations.TabIndex = 13;
+            this.textBoxIterations.Text = "1000";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(239, 73);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(53, 13);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "Iterations:";
             // 
             // OperatingSystemForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(494, 564);
+            this.Controls.Add(this.textBoxIterations);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.selectFileButton);
             this.Controls.Add(this.fileNameTextBox);
@@ -197,5 +218,7 @@
         private System.Windows.Forms.TextBox fileNameTextBox;
         private System.Windows.Forms.Button selectFileButton;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox textBoxIterations;
+        private System.Windows.Forms.Label label6;
     }
 }

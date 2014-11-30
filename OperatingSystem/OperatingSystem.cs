@@ -19,12 +19,19 @@ namespace OperatingSystem
         int _ramSize; //Size of ram in number of instructions
         int _cpuCount; //How many cpus we should use
         SystemMemory _sysMem; //ref to the system memory
-        List<CPU> _cpus;
-        int _totalCycles;
-        Stopwatch _throughput;
-        Results _result;
-        int _iterations;
+        List<CPU> _cpus; //all of our CPU's
+        int _totalCycles; //Total cycles of the big loop
+        Stopwatch _throughput; //timer for throughput of 1 loop
+        Result _result; //Results object for the total results of all iterations
+        int _iterations; //Number of times to run the simluation
 
+        /// <summary>
+        /// Constructor for our OS
+        /// </summary>
+        /// <param name="algorithm">Which algorithm to use</param>
+        /// <param name="ramSize">How big should ram be</param>
+        /// <param name="cpuCount">How many CPU's should we use</param>
+        /// <param name="iterations">How many times should we run the simulation</param>
         public OperatingSystem(LTSAlgorithm algorithm, int ramSize, int cpuCount, int iterations)
         {
             _hdd = new HDD();
@@ -43,7 +50,7 @@ namespace OperatingSystem
             {
                 _cpus.Add(new CPU(_ram));
             }
-            _result = new Results();
+            _result = new Result();
             _result.CPUUtilizations = new List<double>(cpuCount);
             _result.JobResults = new List<JobResult>();
 
@@ -57,34 +64,31 @@ namespace OperatingSystem
         /// <returns>Currently ruturns the contents of RAM</returns>
         public string Start(string inputFile)
         {
-            //Our list of jobs
-            List<Job> jobs;
-            try
-            {
-                //Run boot, which parses the file and returns with a list of jobs for us
-                jobs = _bootloader.Run(inputFile);
-            }
-            //Exception handling
-            catch (FormatException)
-            {
-                return "Invalid file selected";
-            }
-            catch (Win32Exception)
-            {
-                return "File not found";
-            }
-            catch (FileNotFoundException)
-            {
-                return "File not found";
-            }
-
             for (int run = 0; run < _iterations; run++)
             {
-                _throughput.Start();
+                //Our list of jobs
+                List<Job> jobs;
+                try
+                {
+                    //Run boot, which parses the file and returns with a list of jobs for us
+                    jobs = _bootloader.Run(inputFile);
+                }
+                //Exception handling
+                catch (FormatException)
+                {
+                    return "Invalid file selected";
+                }
+                catch (Win32Exception)
+                {
+                    return "File not found";
+                }
+                catch (FileNotFoundException)
+                {
+                    return "File not found";
+                }
 
                 //Initialize our ram
                 _ram = new RAM(_ramSize);
-                string output = "";
 
 
                 //Add all the instructions in the file to the HDD, and create PCB's for each job
@@ -109,24 +113,11 @@ namespace OperatingSystem
                         break;
                 }
 
+                _throughput.Start();
                 //While we still have jobs that are not terminated
                 while (SystemMemory.Instance.HasJobs)
                 {
                     _totalCycles++;
-                    ////Run the LTS which grabs jobs from the HDD and tries to put them in RAM based on the specified algorithm
-                    //switch (_algorithm)
-                    //{
-                    //    case LTSAlgorithm.FCFS:
-                    //        LTS.FCFS(_hdd, _ram);
-                    //        break;
-                    //    case LTSAlgorithm.Priority:
-                    //        LTS.Priority(_hdd, _ram);
-                    //        break;
-                    //    case LTSAlgorithm.Shortest:
-                    //        LTS.ShortestFirst(_hdd, _ram);
-                    //        break;
-                    //}
-
                     LTS.Run(_hdd, _ram);
 
                     //Run the STS algorithm
@@ -135,7 +126,7 @@ namespace OperatingSystem
                         STS.SupplyCPU(cpu, ref _ram);
                         //Execute 1 instruction in the CPU
                         ThreadPool.QueueUserWorkItem(cpu.Execute);
-
+                        cpu.Execute(this);
                     }
 
                     //For all the jobs in the IO queue
@@ -194,27 +185,34 @@ namespace OperatingSystem
                     _result.JobResults[i].RegB += SystemMemory.Instance.Jobs[i].RegisterB;
                     _result.JobResults[i].RegC += SystemMemory.Instance.Jobs[i].RegisterC;
                     _result.JobResults[i].RegD += SystemMemory.Instance.Jobs[i].RegisterD;
-                    _result.JobResults[i].TurnAroundTime += Math.Round(((double)SystemMemory.Instance.Jobs[i].TurnaroundTimer.ElapsedTicks / (double)Stopwatch.Frequency) * 1000, 4);
-                    _result.JobResults[i].WaitTime += Math.Round(((double)SystemMemory.Instance.Jobs[i].WaitingTimer.ElapsedTicks / (double)Stopwatch.Frequency) * 1000, 4);
-                    _result.JobResults[i].ResponseTime += Math.Round(((double)SystemMemory.Instance.Jobs[i].ResponseTimer.ElapsedTicks / (double)Stopwatch.Frequency) * 1000, 4);
+                    _result.JobResults[i].TurnAroundTime += Math.Round((double)SystemMemory.Instance.Jobs[i].TurnaroundTimer.Elapsed.TotalMilliseconds, 4);
+                    _result.JobResults[i].WaitTime += Math.Round((double)SystemMemory.Instance.Jobs[i].WaitingTimer.Elapsed.TotalMilliseconds, 4);
+                    _result.JobResults[i].ResponseTime += Math.Round((double)SystemMemory.Instance.Jobs[i].ResponseTimer.Elapsed.TotalMilliseconds, 4);
                 }
 
                 _throughput.Reset();
+
                 SystemMemory.Flush();
+                _sysMem = SystemMemory.Instance;
+                _cpus = new List<CPU>(_cpuCount);
+                for (int i = 0; i < _cpuCount; i++)
+                {
+                    _cpus.Add(new CPU(_ram));
+                }
+                _totalCycles = 0;
+                _ram.Flush();
+                _hdd = new HDD();
             }
-            ////Print out all the jobs
-            //foreach (PCB pcb in SystemMemory.Instance.Jobs)
-            //{
-            //    output += "Job: " + pcb.JobNumber + "\n";
-            //    output += "Acc: " + pcb.Accumulator + "\n";
-            //    output += "RegisterA: " + pcb.RegisterA + "\n";
-            //    output += "RegisterB: " + pcb.RegisterB + "\n";
-            //    output += "RegisterC: " + pcb.RegisterC + "\n";
-            //    output += "RegisterD: " + pcb.RegisterD + "\n";
-            //}
+
             return GetResults();
         }
 
+        /// <summary>
+        /// Compares 2 PCB's by job number
+        /// </summary>
+        /// <param name="A">First pcb to compare</param>
+        /// <param name="B">second pcb to compare</param>
+        /// <returns></returns>
         private static int CompareByJobNum(PCB A, PCB B)
         {
             if (A == null && B == null) return 0;
@@ -223,18 +221,28 @@ namespace OperatingSystem
             else return -1;
         }
 
+        /// <summary>
+        /// Returns the results of the run as a block of text
+        /// </summary>
+        /// <returns>The results in a formated string</returns>
         private string GetResults()
         {
             string output = "Throughput: " + Math.Round((_result.Throughput / _iterations), 4) + " Job/ms \n";
-            
+
+            double sum = 0.0;
 
             for(int i = 0; i < _result.CPUUtilizations.Count; i++)
             {
                 double util = Math.Round(_result.CPUUtilizations[i] / _iterations, 3);
+                sum += util;
                 output += "CPU: " + i + " Utilization: " + util + "\n";
             }
 
+            output += "Total CPU Utilization: " + sum / _result.CPUUtilizations.Count + "\n";
 
+            double TurnAroundSum = 0.0;
+            double WaitSum = 0.0;
+            double ResponseSum = 0.0;
             //return out the header
             output += "Job\tAcc\t A\t B\t C\t D \tTA \t Wait \t Resp\n"; 
             //return out all the jobs
@@ -246,10 +254,23 @@ namespace OperatingSystem
                 output += _result.JobResults[i].RegB / _iterations + "\t ";
                 output += _result.JobResults[i].RegC / _iterations + "\t ";
                 output += _result.JobResults[i].RegD / _iterations + "\t ";
+                TurnAroundSum += Math.Round(_result.JobResults[i].TurnAroundTime / _iterations, 4);
                 output += Math.Round(_result.JobResults[i].TurnAroundTime / _iterations, 4) + "\t ";
+                WaitSum += Math.Round(_result.JobResults[i].WaitTime / _iterations, 4);
                 output += Math.Round(_result.JobResults[i].WaitTime / _iterations, 4) + "\t ";
+                ResponseSum += Math.Round(_result.JobResults[i].ResponseTime / _iterations, 4);
                 output += Math.Round(_result.JobResults[i].ResponseTime / _iterations, 4) + "\n";
             }
+
+            output += "Job Totals: \nTA \t Wait \t Resp\n";
+
+            output += Math.Round(TurnAroundSum / _result.JobResults.Count, 4) + " \t";
+            output += Math.Round(WaitSum / _result.JobResults.Count, 4) + " \t";
+            output += Math.Round(ResponseSum / _result.JobResults.Count, 2)  + " \n";
+            
+
+
+
             return output;
         }
     }
