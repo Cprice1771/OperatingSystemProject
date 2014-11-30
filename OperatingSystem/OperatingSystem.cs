@@ -126,7 +126,6 @@ namespace OperatingSystem
                         STS.SupplyCPU(cpu, ref _ram);
                         //Execute 1 instruction in the CPU
                         ThreadPool.QueueUserWorkItem(cpu.Execute);
-                        cpu.Execute(this);
                     }
 
                     //For all the jobs in the IO queue
@@ -138,6 +137,7 @@ namespace OperatingSystem
                         if (_sysMem.Queues[QueueType.IO][i].IOQueueCycles <= 0)
                         {
                             //move it back to the ready queue
+                            _sysMem.Queues[QueueType.IO][i].WaitingTimer.Start();
                             _sysMem.Queues[QueueType.Ready].Add(_sysMem.Queues[QueueType.IO][i]);
                             _sysMem.Queues[QueueType.IO].RemoveAt(i);
                         }
@@ -152,6 +152,7 @@ namespace OperatingSystem
                         if (_sysMem.Queues[QueueType.Waiting][i].WaitQueueCycles <= 0)
                         {
                             //move it back to the ready queue
+                            _sysMem.Queues[QueueType.Waiting][i].WaitingTimer.Start();
                             _sysMem.Queues[QueueType.Ready].Add(_sysMem.Queues[QueueType.Waiting][i]);
                             _sysMem.Queues[QueueType.Waiting].RemoveAt(i);
                         }
@@ -266,7 +267,7 @@ namespace OperatingSystem
 
             output += Math.Round(TurnAroundSum / _result.JobResults.Count, 4) + " \t";
             output += Math.Round(WaitSum / _result.JobResults.Count, 4) + " \t";
-            output += Math.Round(ResponseSum / _result.JobResults.Count, 2)  + " \n";
+            output += Math.Round(ResponseSum / _result.JobResults.Count, 4)  + " \n";
             
 
 

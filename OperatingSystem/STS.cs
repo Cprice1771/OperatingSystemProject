@@ -42,10 +42,13 @@ namespace OperatingSystem
 
                 if (SystemMemory.Instance.Queues[QueueType.Ready].Count > 0)
                 {
-                    cpu.LoadPCB(SystemMemory.Instance.Queues[QueueType.Ready][0], ref ram);
+                    if (SystemMemory.Instance.Queues[QueueType.Ready][0].ResponseTimer.IsRunning)
+                        SystemMemory.Instance.Queues[QueueType.Ready][0].ResponseTimer.Stop();
+
                     SystemMemory.Instance.Queues[QueueType.Ready][0].State = ProcessState.Running;
                     SystemMemory.Instance.Queues[QueueType.Ready][0].WaitingTimer.Stop();
                     SystemMemory.Instance.Queues[QueueType.Ready][0].TurnaroundTimer.Start();
+                    cpu.LoadPCB(SystemMemory.Instance.Queues[QueueType.Ready][0], ref ram);
                     SystemMemory.Instance.Queues[QueueType.Ready].RemoveAt(0);
                 }
             }
