@@ -156,7 +156,6 @@ namespace OperatingSystem
                         case CommandType.err:
                             SavePCB();
                             PCB.State = ProcessState.Terminated;
-                            PCB.Location = JobLocation.TERMINATED;
                             RemovePCB = true;
 
                             break;
@@ -173,7 +172,6 @@ namespace OperatingSystem
                         {
                             SavePCB();
                             PCB.State = ProcessState.Terminated;
-                            PCB.Location = JobLocation.TERMINATED;
                             RemovePCB = true;
                         }
                     }

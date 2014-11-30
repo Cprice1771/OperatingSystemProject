@@ -55,11 +55,13 @@
     <Compile Include="Instruction.cs" />
     <Compile Include="Exceptions\InsufficientRAMException.cs" />
     <Compile Include="Job.cs" />
+    <Compile Include="JobResult.cs" />
     <Compile Include="LTS.cs" />
     <Compile Include="OperatingSystem.cs" />
     <Compile Include="PCB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RAM.cs" />
+    <Compile Include="Results.cs" />
     <Compile Include="STS.cs" />
     <Compile Include="SystemMemory.cs" />
     <Compile Include="Exceptions\UnknownCommandException.cs" />

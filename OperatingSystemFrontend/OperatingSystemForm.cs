@@ -29,7 +29,7 @@ namespace OperatingSystemFrontend
             if (!string.IsNullOrEmpty(comboBoxLTS.Text) && !string.IsNullOrEmpty(textBoxRAMSize.Text) && !string.IsNullOrEmpty(textBoxCPUCount.Text))
             {
                 LTSAlgorithm algorithm = (LTSAlgorithm)Enum.Parse(typeof(LTSAlgorithm), comboBoxLTS.Text);
-                os = new OperatingSystem.OperatingSystem(algorithm, Int32.Parse(textBoxRAMSize.Text), Int32.Parse(textBoxCPUCount.Text));
+                os = new OperatingSystem.OperatingSystem(algorithm, Int32.Parse(textBoxRAMSize.Text), Int32.Parse(textBoxCPUCount.Text), 1000);
                 //Run the OS and show the output in the output box
                 richTextBoxRAM.Text = os.Start(fileNameTextBox.Text);
             }

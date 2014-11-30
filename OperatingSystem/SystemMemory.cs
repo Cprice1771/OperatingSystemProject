@@ -62,7 +62,7 @@ namespace OperatingSystem
             } 
         }
 
-        internal static void Flush()
+        public static void Flush()
         {
             instance = new SystemMemory();
         }
