@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OperatingSystem.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,16 +9,22 @@ namespace OperatingSystem
 {
     public class RAM
     {
-        //public const int MAX_SIZE = 100;
         public int MaxSize;
-
+        public List<int> removedJobs = new List<int>();
         public List<Instruction> Instructions { get; set; }
+
 
         public int size
         {
             get
             {
-                return Instructions.Count;
+                int c;
+                lock (Instructions)
+                {
+                    c = Instructions.Count;
+                }
+
+                return c;
             }
         }
 
@@ -31,38 +38,37 @@ namespace OperatingSystem
 
         public int AddJob(List<Instruction> instructions)
         {
-            int index = Instructions.Count;
+            int index;
+            lock (Instructions)
+            {
+                index = Instructions.Count;
 
-            if ((size + instructions.Count) < MaxSize)
-                Instructions.AddRange(instructions);
-            else
-                throw new InsufficientRAMException();
+                if ((size + instructions.Count) < MaxSize)
+                    Instructions.AddRange(instructions);
+                else
+                    throw new InsufficientRAMException();
 
+                
+            }
             return index;
         }
 
         public void RemoveJob(PCB pcb)
         {
-            Instructions.RemoveRange(pcb.Index, pcb.Length);
-            CompactRam(pcb.Index, pcb.Length);
-        }
-
-        private void CompactRam(int start, int length)
-        {
-            foreach (PCB pcb in SystemMemory.Instance.Jobs)
+            lock (Instructions)
             {
-                if (pcb.Location == JobLocation.RAM)
-                {
-                    if (pcb.Index > start)
-                    {
-                        if (pcb.Index < length)
-                            throw new InvalidOperationException("Error");
+                if(!removedJobs.Contains(pcb.JobNumber))
+                    removedJobs.Add(pcb.JobNumber);
+                else
+                    throw new InvalidRamOperationException();
 
-                        pcb.Index -= length;
-                    }
-                }
+                Instructions.RemoveRange(pcb.Index, pcb.Length);
+                CompactRam(pcb.Index, pcb.Length);
+                pcb.Location = JobLocation.TERMINATED;
             }
+            
         }
+
 
         public override string ToString()
         {
@@ -77,6 +83,27 @@ namespace OperatingSystem
         internal void Flush()
         {
             Instructions = new List<Instruction>();
+        }
+
+        private void CompactRam(int start, int length)
+        {
+            foreach (PCB pcb in SystemMemory.Instance.Jobs)
+            {
+                lock (pcb)
+                {
+                    if (pcb.Location == JobLocation.RAM)
+                    {
+                        if (pcb.Index > start)
+                        {
+                            if (pcb.Index < length)
+                                throw new InvalidRamOperationException();
+                            else
+                                pcb.Index -= length;
+                        }
+                    }
+                }
+            }   
+  
         }
     }
 }

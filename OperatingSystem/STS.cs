@@ -11,7 +11,7 @@ namespace OperatingSystem
     /// </summary>
     public static class STS
     {
-        public static void SupplyCPU(CPU cpu, RAM ram)
+        internal static void SupplyCPU(CPU cpu, ref RAM ram)
         {
             if (cpu.IsWaiting)
             {
@@ -34,19 +34,21 @@ namespace OperatingSystem
                         SystemMemory.Instance.Queues[QueueType.Ready].Add(cpu.PCB);
                     }
 
-                    cpu.PCB.TurnaroundTimer.Stop();
+                    
                     cpu.UnloadPCB();
                     
-
 
                 }
 
                 if (SystemMemory.Instance.Queues[QueueType.Ready].Count > 0)
                 {
-                    cpu.LoadPCB(SystemMemory.Instance.Queues[QueueType.Ready][0], ram);
+                    if (SystemMemory.Instance.Queues[QueueType.Ready][0].ResponseTimer.IsRunning)
+                        SystemMemory.Instance.Queues[QueueType.Ready][0].ResponseTimer.Stop();
+
                     SystemMemory.Instance.Queues[QueueType.Ready][0].State = ProcessState.Running;
                     SystemMemory.Instance.Queues[QueueType.Ready][0].WaitingTimer.Stop();
                     SystemMemory.Instance.Queues[QueueType.Ready][0].TurnaroundTimer.Start();
+                    cpu.LoadPCB(SystemMemory.Instance.Queues[QueueType.Ready][0], ref ram);
                     SystemMemory.Instance.Queues[QueueType.Ready].RemoveAt(0);
                 }
             }

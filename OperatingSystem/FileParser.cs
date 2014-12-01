@@ -14,7 +14,7 @@ namespace OperatingSystem
         /// </summary>
         /// <param name="file">The path to the file to parse</param>
         /// <returns>A list of all jobs</returns>
-        public static List<Job> Parse(string file)
+        internal static List<Job> Parse(string file)
         {
             List<Job> jobs = new List<Job>();
             //Open up the given file

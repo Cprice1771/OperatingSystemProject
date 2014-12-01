@@ -26,7 +26,7 @@ namespace OperatingSystem
         public void AddInstruction(Instruction instruction)
         {
             Instructions.Add(instruction);
-            JobPCB.Length = (byte)Instructions.Count;
+            JobPCB.Length = Instructions.Count;
         }
 
         

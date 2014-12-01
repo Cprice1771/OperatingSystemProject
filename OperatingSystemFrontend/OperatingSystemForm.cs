@@ -20,16 +20,17 @@ namespace OperatingSystemFrontend
         {
             InitializeComponent();
             
-            fileNameTextBox.Text = Directory.GetCurrentDirectory() + "\\Input\\ugradPart1.txt";
+            fileNameTextBox.Text = Directory.GetCurrentDirectory() + "\\Input\\ugradPart2.txt";
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             //Make sure all inputs are valid
-            if (!string.IsNullOrEmpty(comboBoxLTS.Text) && !string.IsNullOrEmpty(textBoxRAMSize.Text) && !string.IsNullOrEmpty(textBoxCPUCount.Text))
+            if (!string.IsNullOrEmpty(comboBoxLTS.Text) && !string.IsNullOrEmpty(textBoxRAMSize.Text) && !string.IsNullOrEmpty(textBoxCPUCount.Text) && !string.IsNullOrEmpty(textBoxIterations.Text))
             {
                 LTSAlgorithm algorithm = (LTSAlgorithm)Enum.Parse(typeof(LTSAlgorithm), comboBoxLTS.Text);
-                os = new OperatingSystem.OperatingSystem(algorithm, Int32.Parse(textBoxRAMSize.Text), Int32.Parse(textBoxCPUCount.Text));
+                richTextBoxRAM.Text = "Running...";
+                os = new OperatingSystem.OperatingSystem(algorithm, Int32.Parse(textBoxRAMSize.Text), Int32.Parse(textBoxCPUCount.Text), Int32.Parse(textBoxIterations.Text));
                 //Run the OS and show the output in the output box
                 richTextBoxRAM.Text = os.Start(fileNameTextBox.Text);
             }

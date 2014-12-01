@@ -12,7 +12,7 @@ namespace OperatingSystem
         {
         }
 
-        public List<Job> Run(string inputFile)
+        internal List<Job> Run(string inputFile)
         {
             //parse the file
             return FileParser.Parse(inputFile);

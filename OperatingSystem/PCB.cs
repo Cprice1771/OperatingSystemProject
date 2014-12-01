@@ -11,7 +11,6 @@ namespace OperatingSystem
     {
         public int Priority { set; get; }
         public int Length { set; get; }
-        public int Start { get; set; }
         public ProcessState State { get; set; }
         public JobLocation Location { get; set; }
         public int Index { get; set; }
@@ -34,7 +33,6 @@ namespace OperatingSystem
             Priority = p;
             Length = len;
             PC = instNum;
-            Start = PC;
             State = ProcessState.New;
             Location = loc;
             JobNumber = jn;
