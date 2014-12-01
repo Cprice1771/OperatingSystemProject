@@ -18,7 +18,6 @@ namespace OperatingSystem
         LTSAlgorithm _algorithm; //Enum of the algorith we should use
         int _ramSize; //Size of ram in number of instructions
         int _cpuCount; //How many cpus we should use
-        SystemMemory _sysMem; //ref to the system memory
         List<CPU> _cpus; //all of our CPU's
         int _totalCycles; //Total cycles of the big loop
         Stopwatch _throughput; //timer for throughput of 1 loop
@@ -37,7 +36,6 @@ namespace OperatingSystem
             _hdd = new HDD();
             _ram = new RAM();
             SystemMemory.Flush();
-            _sysMem = SystemMemory.Instance;
             _bootloader = new Boot();
             _algorithm = algorithm;
             _ramSize = ramSize;
@@ -129,32 +127,32 @@ namespace OperatingSystem
                     }
 
                     //For all the jobs in the IO queue
-                    for (int i = _sysMem.Queues[QueueType.IO].Count - 1; i >= 0; i--)
+                    for (int i = SystemMemory.Instance.Queues[QueueType.IO].Count - 1; i >= 0; i--)
                     {
                         //Subtract 1 from the cycles remaining
-                        _sysMem.Queues[QueueType.IO][i].IOQueueCycles--;
+                        SystemMemory.Instance.Queues[QueueType.IO][i].IOQueueCycles--;
                         //if there's 0 cycles remaining 
-                        if (_sysMem.Queues[QueueType.IO][i].IOQueueCycles <= 0)
+                        if (SystemMemory.Instance.Queues[QueueType.IO][i].IOQueueCycles <= 0)
                         {
                             //move it back to the ready queue
-                            _sysMem.Queues[QueueType.IO][i].WaitingTimer.Start();
-                            _sysMem.Queues[QueueType.Ready].Add(_sysMem.Queues[QueueType.IO][i]);
-                            _sysMem.Queues[QueueType.IO].RemoveAt(i);
+                            SystemMemory.Instance.Queues[QueueType.IO][i].WaitingTimer.Start();
+                            SystemMemory.Instance.Queues[QueueType.Ready].Add(SystemMemory.Instance.Queues[QueueType.IO][i]);
+                            SystemMemory.Instance.Queues[QueueType.IO].RemoveAt(i);
                         }
                     }
 
                     //For all the jobs in the Wait queue
-                    for (int i = _sysMem.Queues[QueueType.Waiting].Count - 1; i >= 0; i--)
+                    for (int i = SystemMemory.Instance.Queues[QueueType.Waiting].Count - 1; i >= 0; i--)
                     {
                         //Subtract 1 from the cycles remaining
-                        _sysMem.Queues[QueueType.Waiting][i].WaitQueueCycles--;
+                        SystemMemory.Instance.Queues[QueueType.Waiting][i].WaitQueueCycles--;
                         //if there's 0 cycles remaining 
-                        if (_sysMem.Queues[QueueType.Waiting][i].WaitQueueCycles <= 0)
+                        if (SystemMemory.Instance.Queues[QueueType.Waiting][i].WaitQueueCycles <= 0)
                         {
                             //move it back to the ready queue
-                            _sysMem.Queues[QueueType.Waiting][i].WaitingTimer.Start();
-                            _sysMem.Queues[QueueType.Ready].Add(_sysMem.Queues[QueueType.Waiting][i]);
-                            _sysMem.Queues[QueueType.Waiting].RemoveAt(i);
+                            SystemMemory.Instance.Queues[QueueType.Waiting][i].WaitingTimer.Start();
+                            SystemMemory.Instance.Queues[QueueType.Ready].Add(SystemMemory.Instance.Queues[QueueType.Waiting][i]);
+                            SystemMemory.Instance.Queues[QueueType.Waiting].RemoveAt(i);
                         }
                     }
 
@@ -165,7 +163,7 @@ namespace OperatingSystem
                 //Sort the list of jobs by job number
                 SystemMemory.Instance.Jobs.Sort(CompareByJobNum);
 
-                _result.Throughput += Math.Round((double)_sysMem.Jobs.Count / ((double)_throughput.ElapsedTicks / (double)Stopwatch.Frequency) / 1000, 5);
+                _result.Throughput += Math.Round((double)SystemMemory.Instance.Jobs.Count / ((double)_throughput.ElapsedTicks / (double)Stopwatch.Frequency) / 1000, 5);
 
                 for (int i = 0; i < _cpuCount; i++)
                 {
@@ -194,7 +192,6 @@ namespace OperatingSystem
                 _throughput.Reset();
 
                 SystemMemory.Flush();
-                _sysMem = SystemMemory.Instance;
                 _cpus = new List<CPU>(_cpuCount);
                 for (int i = 0; i < _cpuCount; i++)
                 {
